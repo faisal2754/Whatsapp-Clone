@@ -2,7 +2,9 @@ import express from 'express'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
 import Pusher from 'pusher'
+import cors from 'cors'
 import router from './routes/routes.js'
+import Message from './models/Message.js'
 
 // env config
 dotenv.config()
@@ -10,6 +12,7 @@ dotenv.config()
 // app config
 const app = express()
 app.use(express.json())
+app.use(cors())
 app.use('', router)
 
 const pusher = new Pusher({
@@ -33,6 +36,20 @@ mongoose.connect(
   },
   () => {
     console.log('Connected to db')
+    const changeStream = Message.watch()
+    changeStream.on('change', (change) => {
+      console.log(change)
+
+      if (change.operationType === 'insert') {
+        const messageDetails = change.fullDocument
+        pusher.trigger('messages', 'inserted', {
+          name: messageDetails.name,
+          message: messageDetails.message
+        })
+      } else {
+        console.log('Error with Pusher')
+      }
+    })
   }
 )
 
