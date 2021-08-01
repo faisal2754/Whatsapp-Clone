@@ -7,12 +7,24 @@ import {
 } from '@material-ui/icons'
 import MoreVert from '@material-ui/icons/MoreVert'
 import { useState } from 'react'
-import './Chat.css'
+import '../styles/Chat.css'
+import axios from '../utils/axios'
 
-const Chat = () => {
+const Chat = ({ messages }) => {
   const [input, setInput] = useState('')
 
-  const sendMessage = () => {}
+  const sendMessage = async (e) => {
+    e.preventDefault()
+
+    await axios.post('/messages/new', {
+      message: input,
+      name: 'Test Name',
+      timestamp: 'Test timestamp',
+      received: false
+    })
+
+    setInput('')
+  }
 
   return (
     <div className="chat">
@@ -38,18 +50,19 @@ const Chat = () => {
       </div>
 
       <div className="chat__body">
-        <p className="chat__message">
-          <span className="chat__name">Bruh</span>A message
-          <span className="chat__timestamp">{new Date().toUTCString()}</span>
-        </p>
-        <p className="chat__message chat__receiver">
-          <span className="chat__name">Bruh</span>A message
-          <span className="chat__timestamp">{new Date().toUTCString()}</span>
-        </p>
-        <p className="chat__message">
-          <span className="chat__name">Bruh</span>A message
-          <span className="chat__timestamp">{new Date().toUTCString()}</span>
-        </p>
+        {messages.map((message) => {
+          return (
+            <p
+              key={message._id}
+              className={`chat__message ${
+                message.received && 'chat__receiver'
+              }`}>
+              <span className="chat__name">{message.name}</span>
+              {message.message}
+              <span className="chat__timestamp">{message.timestamp}</span>
+            </p>
+          )
+        })}
       </div>
 
       <div className="chat__footer">

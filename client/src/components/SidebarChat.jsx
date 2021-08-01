@@ -1,5 +1,5 @@
 import { Avatar } from '@material-ui/core'
-import './SidebarChat.css'
+import '../styles/SidebarChat.css'
 
 const SidebarChat = () => {
   return (
